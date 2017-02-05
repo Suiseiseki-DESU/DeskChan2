@@ -40,7 +40,7 @@ private:
 	DCPluginManager &m_pluginManager;
 	QString m_id;
 	QLibrary *m_sharedLibrary;
-	QMap<QString, MessageCallback> m_messageCallbacks;
+	QMap<QString, QList<MessageCallback>> m_messageCallbacks;
 	QMap<int, MessageCallback> m_responseCallbacks;
 	int m_seq = 0;
 

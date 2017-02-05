@@ -27,7 +27,7 @@ void DCPlugin::subscribe(const QString &tag) {
 }
 
 void DCPlugin::subscribe(const QString &tag, const MessageCallback &callback) {
-	m_messageCallbacks[tag] = callback;
+	m_messageCallbacks[tag].append(callback);
 	subscribe(tag);
 }
 
@@ -40,7 +40,9 @@ void DCPlugin::unsubscribe(const QString &tag) {
 void DCPlugin::handleMessage(const QString &sender, const QString &tag, const QVariant &data) {
 	auto it = m_messageCallbacks.find(tag);
 	if (it != m_messageCallbacks.end()) {
-		(*it)(sender, tag, data);
+		for (auto&& callback : *it) {
+			callback(sender, tag, data);
+		}
 	}
 	int seq = data.toMap()["seq"].toInt();
 	if (seq != 0) {

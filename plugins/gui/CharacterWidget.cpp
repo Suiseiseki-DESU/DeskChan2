@@ -6,6 +6,7 @@
 #include <QMenu>
 #include <QDir>
 #include "Plugin.h"
+#include "SettingsDialog.h"
 #include "CharacterWidget.h"
 
 CharacterWidget::CharacterWidget(PluginClass *plugin): QWidget(nullptr), m_plugin(plugin) {
@@ -22,9 +23,6 @@ CharacterWidget::CharacterWidget(PluginClass *plugin): QWidget(nullptr), m_plugi
 			resize((int)(700 * ratio), (int)(700 * (1 - ratio)));
 			show();
 			initCallbacks();
-			m_plugin->sendMessage("core:register-alternative", QMap<QString, QVariant>({
-					{"srcTag", "dc:say"}, {"dstTag", "gui:say"}, {"priority", 100}
-			}));
 		});
 	});
 }
@@ -55,10 +53,16 @@ void CharacterWidget::mousePressEvent(QMouseEvent *event) {
 		m_dragging = true;
 	} else if (event->button() == Qt::RightButton) {
 		QMenu menu;
+		QAction settingsAction("Settings...");
+		connect(&settingsAction, &QAction::triggered, [this]() {
+			m_plugin->m_settingsDialog->show();
+		});
 		QAction quitAction("Quit");
 		connect(&quitAction, &QAction::triggered, [this]() {
 			m_plugin->sendMessage("core:quit", QVariant());
 		});
+		menu.addAction(&settingsAction);
+		menu.addSeparator();
 		menu.addAction(&quitAction);
 		menu.exec(event->globalPos());
 	}
@@ -82,4 +86,7 @@ void CharacterWidget::initCallbacks() {
 	m_plugin->subscribe("gui:say", [this](const QString &sender, const QString &tag, const QVariant &data) {
 		//
 	});
+	m_plugin->sendMessage("core:register-alternative", QMap<QString, QVariant>({
+			{"srcTag", "dc:say"}, {"dstTag", "gui:say"}, {"priority", 100}
+	}));
 }

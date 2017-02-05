@@ -9,6 +9,7 @@ class CharacterWidget final: public QWidget {
 public:
 	explicit CharacterWidget(PluginClass *plugin);
 	~CharacterWidget() override;
+	PluginClass *plugin() const { return m_plugin; }
 
 protected:
 	void closeEvent(QCloseEvent *event) override;

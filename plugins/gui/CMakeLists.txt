@@ -1,6 +1,6 @@
 find_package(Qt5Widgets REQUIRED)
 
-set(SRC_LIST Plugin.cpp Plugin.h CharacterWidget.cpp CharacterWidget.h)
+set(SRC_LIST Plugin.cpp Plugin.h CharacterWidget.cpp CharacterWidget.h SettingsDialog.cpp SettingsDialog.h)
 add_library(gui SHARED ${SRC_LIST})
 target_link_libraries(gui Qt5::Widgets DeskChan_System)
 
