@@ -119,15 +119,34 @@ void DCCorePlugin::initCallbacks() {
 		QString srcTag = m["srcTag"].toString();
 		QString dstTag = m["dstTag"].toString();
 		int priority = m["priority"].toInt();
+		auto it = m_alternatives.find(srcTag);
+		if (it == m_alternatives.end()) {
+			it = m_alternatives.insert(srcTag, QList<AlternativeInfo>());
+		}
+		auto it2 = it->begin();
+		while ((it2 != it->end()) && (it2->priority > priority)) {
+			++it2;
+		}
+		it->insert(it2, AlternativeInfo(priority, dstTag, sender));
+		qDebug() << "Registered alternative" << dstTag << "for tag" << srcTag << "by plugin" << sender;
 	});
 	subscribe("core:unregister-alternative", [this](const QString &sender, const QString &tag, const QVariant &data) {
 		auto m = data.toMap();
 		QString srcTag = m["srcTag"].toString();
 		QString dstTag = m["dstTag"].toString();
-		QString pluginId = data.toString();
 		auto it = m_alternatives.find(srcTag);
 		if (it != m_alternatives.end()) {
-			//
+			for (auto it2 = it->begin(); it2 != it->end(); ++it2) {
+				if ((it2->tag == dstTag) && (it2->pluginId == sender)) {
+					qDebug() << "Unregistered alternative" << dstTag << "for tag" << srcTag;
+					it->erase(it2);
+					break;
+				}
+			}
+			if (it->size() == 0) {
+				qDebug() << "No more alternatives for" << srcTag;
+				m_alternatives.erase(it);
+			}
 		}
 	});
 	subscribe("core:change-alternative-priority", [this](const QString &sender, const QString &tag, const QVariant &data) {
@@ -135,18 +154,51 @@ void DCCorePlugin::initCallbacks() {
 		QString srcTag = m["srcTag"].toString();
 		QString dstTag = m["dstTag"].toString();
 		int priority = m["priority"].toInt();
+		auto it = m_alternatives.find(srcTag);
+		if (it != m_alternatives.end()) {
+			for (auto it2 = it->begin(); it2 != it->end(); ++it2) {
+				if (it2->tag == dstTag) {
+					QString pluginId = it2->pluginId;
+					it->erase(it2);
+					it2 = it->begin();
+					while ((it2 != it->begin()) && (it2->priority > priority)) {
+						++it2;
+					}
+					it->insert(it2, AlternativeInfo(priority, dstTag, pluginId));
+					qDebug() << "Changed priority to" << priority << "for alternative" << dstTag << "for tag" << srcTag;
+					break;
+				}
+			}
+		}
 	});
 	subscribe("core:query-alternatives", [this](const QString &sender, const QString &tag, const QVariant &data) {
-		//
+		int seq = data.toMap()["seq"].toInt();
+		QVariantMap m;
+		for (auto it = m_alternatives.begin(); it != m_alternatives.end(); ++it) {
+			QVariantList l;
+			for (auto it2 = it->begin(); it2 != it->end(); ++it2) {
+				QVariantMap m2;
+				m2["priority"] = it2->priority;
+				m2["tag"] = it2->tag;
+				m2["pluginId"] = it2->pluginId;
+				l.append(m2);
+			}
+			m[it.key()] = l;
+		}
+		sendMessage(sender, QVariantMap({{"seq", seq}, {"alternatives", m}}));
 	});
 	subscribe("core-events:plugin-unload", [this](const QString &sender, const QString &tag, const QVariant &data) {
 		QString pluginId = data.toString();
-		for (auto&& altList : m_alternatives) {
-			for (auto it = altList.begin(); it != altList.end(); ++it) {
-				if (it->pluginId == pluginId) {
-					altList.erase(it);
+		for (auto it = m_alternatives.begin(); it != m_alternatives.end(); ++it) {
+			for (auto it2 = it->begin(); it2 != it->end(); ++it2) {
+				if (it2->pluginId == pluginId) {
+					qDebug() << "Unregistered alternative" << it2->tag << "for" << it.key();
+					it->erase(it2);
 					break;
 				}
+			}
+			if (it->size() == 0) {
+				qDebug() << "No more alternatives for" << it.key();
 			}
 		}
 	});

@@ -21,7 +21,12 @@ private:
 		int priority;
 		QString tag;
 		QString pluginId;
+
+		AlternativeInfo(int priority, const QString &tag, const QString &pluginId):
+				priority(priority), tag(tag), pluginId(pluginId) {
+		}
 	};
+
 	QMap<QString, QList<AlternativeInfo>> m_alternatives;
 
 	void initCallbacks();

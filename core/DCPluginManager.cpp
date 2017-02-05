@@ -8,7 +8,7 @@ DCPluginManager::DCPluginManager(): QObject(nullptr), m_corePlugin(nullptr) {
 
 DCPluginManager::~DCPluginManager() {
 	if (m_corePlugin) {
-		m_subscriptions.clear();
+		//m_subscriptions.clear();
 		for (auto &&plugin: m_plugins) {
 			plugin->prepareToUnload();
 		}
