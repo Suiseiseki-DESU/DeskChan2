@@ -19,6 +19,7 @@ public:
 
 private:
 	friend class DCPlugin;
+	friend class DCCorePlugin;
 
 	QMap<QString, DCPlugin*> m_plugins;
 	QMap<QString, QSet<DCPlugin*>> m_subscriptions;

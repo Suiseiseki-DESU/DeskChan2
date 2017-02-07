@@ -10,7 +10,7 @@ class DC_CORE_DECL DCCorePlugin final: public DCPlugin {
 public:
 	explicit DCCorePlugin(DCPluginManager &pluginManager);
 	~DCCorePlugin() override;
-	bool loadPlugin(const QString &name) const;
+	bool loadPlugin(const QString &name);
 	QString pluginDir(const DCPlugin *plugin) const;
 	QString pluginDir(const QString& id) const;
 	QString pluginDataDir(const DCPlugin *plugin) const;
@@ -26,8 +26,17 @@ private:
 				priority(priority), tag(tag), pluginId(pluginId) {
 		}
 	};
+	struct PluginLoaderInfo {
+		QString pattern;
+		QString tag;
+		QString pluginId;
 
+		PluginLoaderInfo(const QString &pattern, const QString &tag, const QString &pluginId):
+				pattern(pattern), tag(tag), pluginId(pluginId) {
+		}
+	};
 	QMap<QString, QList<AlternativeInfo>> m_alternatives;
+	QList<PluginLoaderInfo> m_pluginLoaders;
 
 	void initCallbacks();
 

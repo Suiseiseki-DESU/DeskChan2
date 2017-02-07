@@ -10,15 +10,17 @@
 DCCorePlugin::DCCorePlugin(DCPluginManager &pluginManager): DCPlugin(pluginManager) {
 	initialize("core");
 	initCallbacks();
+	loadPlugin("python_support");
 	if (QCoreApplication::instance()->property("guiSupportAvailable").toBool()) {
 		loadPlugin("gui");
 	}
+	loadPlugin("random_phrases");
 }
 
 DCCorePlugin::~DCCorePlugin() {
 }
 
-bool DCCorePlugin::loadPlugin(const QString &name) const {
+bool DCCorePlugin::loadPlugin(const QString &name) {
 	QString pluginDirName = pluginDir(name);
 	if (pluginDirName.isEmpty()) {
 		return false;
@@ -59,6 +61,13 @@ bool DCCorePlugin::loadPlugin(const QString &name) const {
 		}
 		qWarning() << library->errorString();
 		delete library;
+	}
+	for (auto &loaderInfo : m_pluginLoaders) {
+		pluginLibraryName = pluginDirName + QDir::separator() + loaderInfo.pattern.arg(name);
+		if (QFileInfo(pluginLibraryName).isReadable()) {
+			sendMessage(loaderInfo.tag, pluginLibraryName);
+			return true;
+		}
 	}
 	return false;
 }
@@ -129,6 +138,21 @@ void DCCorePlugin::initCallbacks() {
 		}
 		it->insert(it2, AlternativeInfo(priority, dstTag, sender));
 		qDebug() << "Registered alternative" << dstTag << "for tag" << srcTag << "by plugin" << sender;
+		if (it->size() == 1) {
+			subscribe(srcTag, [this](const QString &sender_, const QString &tag_, const QVariant &data_) {
+				DCPlugin *senderPlugin = m_pluginManager.plugin(sender_);
+				if (senderPlugin) {
+					auto it3 = m_alternatives.find(tag_);
+					if (it3 != m_alternatives.end()) {
+						auto it4 = it3->begin();
+						while ((it4 != it3->end()) && (it4->priority == it3->begin()->priority)) {
+							m_pluginManager.sendMessage(senderPlugin, it4->tag, data_);
+							++it4;
+						}
+					}
+				}
+			});
+		}
 	});
 	subscribe("core:unregister-alternative", [this](const QString &sender, const QString &tag, const QVariant &data) {
 		auto m = data.toMap();
@@ -146,6 +170,7 @@ void DCCorePlugin::initCallbacks() {
 			if (it->size() == 0) {
 				qDebug() << "No more alternatives for" << srcTag;
 				m_alternatives.erase(it);
+				unsubscribe(it.key());
 			}
 		}
 	});
@@ -197,9 +222,25 @@ void DCCorePlugin::initCallbacks() {
 					break;
 				}
 			}
-			if (it->size() == 0) {
-				qDebug() << "No more alternatives for" << it.key();
+			//if (it->size() == 0) {
+			//	qDebug() << "No more alternatives for" << it.key();
+			//}
+		}
+		auto it = m_pluginLoaders.begin();
+		while (it != m_pluginLoaders.end()) {
+			if (it->pluginId == pluginId) {
+				qDebug() << "Unregistered plugin loader for pattern" << it->pattern;
+				it = m_pluginLoaders.erase(it);
+			} else {
+				++it;
 			}
 		}
+	});
+	subscribe("core:register-plugin-loader", [this](const QString &sender, const QString &tag, const QVariant &data) {
+		QVariantMap m = data.toMap();
+		QString pattern = m["pattern"].toString();
+		QString dstTag = m["tag"].toString();
+		m_pluginLoaders.append(PluginLoaderInfo(pattern, dstTag, sender));
+		qDebug() << "Registered plugin loader for pattern" << pattern << "by plugin" << sender;
 	});
 }
