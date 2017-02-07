@@ -37,5 +37,7 @@ int main(int argc, char **argv) {
 	}
 	int retVal = mainFunc(argc, argv);
 	delete app;
+	guiSupportLibrary.unload();
+	library.unload();
 	return retVal;
 }

@@ -20,12 +20,15 @@ protected:
 
 private:
 	PluginClass *m_plugin;
-	QPixmap m_pixmap;
+	QPixmap m_characterPixmap;
+	QPixmap *m_pixmap = nullptr;
 	QPoint m_clickPos;
 	bool m_dragging = false;
 	QString m_assetsDir;
 	QString m_dataDir;
 
+	void initialize();
 	void initCallbacks();
+	void updatePixmap();
 
 };

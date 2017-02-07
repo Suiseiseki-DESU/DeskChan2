@@ -2,6 +2,7 @@
 
 #include <QDialog>
 #include <QTabWidget>
+#include <QListWidget>
 #include "Plugin.h"
 
 class CharacterWidget;
@@ -15,6 +16,7 @@ private:
 	CharacterWidget *m_characterWidget;
 	PluginClass *m_plugin;
 	QTabWidget *m_tabWidget;
+	QListWidget *m_pluginsListWidget;
 
 	void initUI();
 

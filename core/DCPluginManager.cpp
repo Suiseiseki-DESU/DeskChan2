@@ -8,7 +8,6 @@ DCPluginManager::DCPluginManager(): QObject(nullptr), m_corePlugin(nullptr) {
 
 DCPluginManager::~DCPluginManager() {
 	if (m_corePlugin) {
-		//m_subscriptions.clear();
 		for (auto &&plugin: m_plugins) {
 			plugin->prepareToUnload();
 		}
@@ -17,6 +16,7 @@ DCPluginManager::~DCPluginManager() {
 			if ((*it == m_corePlugin) && (m_plugins.size() > 1)) {
 				++it;
 			} else {
+				m_subscriptions.clear();
 				m_corePlugin = nullptr;
 			}
 			QLibrary *sharedLibrary = m_plugins.first()->sharedLibrary();
@@ -48,15 +48,15 @@ QString DCPluginManager::registerPlugin(DCPlugin *plugin, const QString &id) {
 }
 
 void DCPluginManager::unregisterPlugin(DCPlugin *plugin) {
-	if (m_corePlugin) {
-		sendMessage(m_corePlugin, "core-events:plugin-unload", plugin->id());
-	}
 	qDebug() << "Unregistered plugin" << plugin->id();
 	for (auto&& it : m_subscriptions) {
 		it.remove(plugin);
 	}
 	if (plugin->isInitialized()) {
 		m_plugins.remove(plugin->id());
+	}
+	if (m_corePlugin) {
+		sendMessage(m_corePlugin, "core-events:plugin-unload", plugin->id());
 	}
 }
 

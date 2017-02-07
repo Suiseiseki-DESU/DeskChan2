@@ -1,3 +1,4 @@
+#include <QBitmap>
 #include <QDebug>
 #include <QCloseEvent>
 #include <QPaintEvent>
@@ -17,12 +18,7 @@ CharacterWidget::CharacterWidget(PluginClass *plugin): QWidget(nullptr), m_plugi
 		m_assetsDir = data1.toMap()["path"].toString() + QDir::separator() + "assets";
 		m_plugin->sendMessage("core:query-plugin-data-dir", QVariant(), [this](const QVariant &data2) {
 			m_dataDir = data2.toMap()["path"].toString();
-			QString pixmapFileName = m_assetsDir + QDir::separator() + "mashiro.png";
-			m_pixmap.load(pixmapFileName);
-			float ratio = (float)m_pixmap.width() / m_pixmap.height();
-			resize((int)(700 * ratio), (int)(700 * (1 - ratio)));
-			show();
-			initCallbacks();
+			initialize();
 		});
 	});
 }
@@ -39,11 +35,7 @@ void CharacterWidget::closeEvent(QCloseEvent *event) {
 void CharacterWidget::paintEvent(QPaintEvent *event) {
 	QPainter painter;
 	painter.begin(this);
-	painter.setRenderHint(QPainter::Antialiasing);
-	float pixmapScale = (float)height() / m_pixmap.height();
-	QRect pixmapRect = {0, 0, (int)(m_pixmap.width() * pixmapScale), (int)(m_pixmap.height() * pixmapScale)};
-	pixmapRect.moveCenter(QPoint(width() / 2, height() / 2));
-	painter.drawPixmap(pixmapRect, m_pixmap);
+	painter.drawPixmap(0, 0, *m_pixmap);
 	painter.end();
 }
 
@@ -82,6 +74,14 @@ void CharacterWidget::mouseMoveEvent(QMouseEvent *event) {
 	}
 }
 
+void CharacterWidget::initialize() {
+	QString pixmapFileName = m_assetsDir + QDir::separator() + "mashiro.png";
+	m_characterPixmap.load(pixmapFileName);
+	updatePixmap();
+	show();
+	initCallbacks();
+}
+
 void CharacterWidget::initCallbacks() {
 	m_plugin->subscribe("gui:say", [this](const QString &sender, const QString &tag, const QVariant &data) {
 		//
@@ -89,4 +89,24 @@ void CharacterWidget::initCallbacks() {
 	m_plugin->sendMessage("core:register-alternative", QMap<QString, QVariant>({
 			{"srcTag", "dc:say"}, {"dstTag", "gui:say"}, {"priority", 100}
 	}));
+}
+
+void CharacterWidget::updatePixmap() {
+	if (m_pixmap) delete m_pixmap;
+	float characterPixmapScale = 400.0f / m_characterPixmap.height();
+	QSize pixmapSize((int)(m_characterPixmap.width() * characterPixmapScale),
+					 (int)(m_characterPixmap.height() * characterPixmapScale));
+	m_pixmap = new QPixmap(pixmapSize);
+	m_pixmap->fill(Qt::transparent);
+	QPainter painter;
+	painter.begin(m_pixmap);
+	QRect characterRect(0, 0, (int)(m_characterPixmap.width() * characterPixmapScale),
+						(int)(m_characterPixmap.height() * characterPixmapScale));
+	painter.drawPixmap(characterRect, m_characterPixmap);
+	painter.end();
+	resize(m_pixmap->size());
+	setMask(m_pixmap->mask());
+	if (isVisible()) {
+		repaint();
+	}
 }
