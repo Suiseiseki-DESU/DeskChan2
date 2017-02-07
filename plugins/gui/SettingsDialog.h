@@ -4,6 +4,8 @@
 #include <QTabWidget>
 #include <QListWidget>
 #include <QTreeWidget>
+#include <QLineEdit>
+#include <QTextEdit>
 #include "Plugin.h"
 
 class CharacterWidget;
@@ -19,7 +21,8 @@ private:
 	QTabWidget *m_tabWidget;
 	QListWidget *m_pluginsListWidget;
 	QTreeWidget *m_alternativesTreeWidget;
-
+	QLineEdit *m_sendMessageTagEdit;
+	QTextEdit *m_sendMessageDataEdit;
 	void initUI();
 
 };

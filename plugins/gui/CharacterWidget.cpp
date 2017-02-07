@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QMenu>
+#include <QLabel>
 #include <QDir>
 #include "Plugin.h"
 #include "SettingsDialog.h"
@@ -85,7 +86,7 @@ void CharacterWidget::initialize() {
 
 void CharacterWidget::initCallbacks() {
 	m_plugin->subscribe("gui:say", [this](const QString &sender, const QString &tag, const QVariant &data) {
-		//
+		displayMessage(data.toMap()["text"].toString());
 	});
 	m_plugin->sendMessage("core:register-alternative", QMap<QString, QVariant>({
 			{"srcTag", "dc:say"}, {"dstTag", "gui:say"}, {"priority", 100}
@@ -97,17 +98,52 @@ void CharacterWidget::updatePixmap() {
 	float characterPixmapScale = 400.0f / m_characterPixmap.height();
 	QSize pixmapSize((int)(m_characterPixmap.width() * characterPixmapScale),
 					 (int)(m_characterPixmap.height() * characterPixmapScale));
+	if (m_balloonWidget) {
+		pixmapSize.setWidth(pixmapSize.width() + 400);
+	}
 	m_pixmap = new QPixmap(pixmapSize);
 	m_pixmap->fill(Qt::transparent);
 	QPainter painter;
 	painter.begin(m_pixmap);
 	QRect characterRect(0, 0, (int)(m_characterPixmap.width() * characterPixmapScale),
 						(int)(m_characterPixmap.height() * characterPixmapScale));
+	if (m_balloonWidget) {
+		characterRect.moveLeft(400);
+	}
 	painter.drawPixmap(characterRect, m_characterPixmap);
+	if (m_balloonWidget) {
+		QPainterPath path;
+		path.addRoundedRect(QRect(10, 10, 380, 200), 10, 10);
+		painter.fillPath(path, Qt::white);
+		painter.drawPath(path);
+		m_balloonWidget->move(20, 20);
+		m_balloonWidget->resize(360, 180);
+	}
 	painter.end();
 	resize(m_pixmap->size());
 	setMask(m_pixmap->mask());
 	if (isVisible()) {
 		repaint();
 	}
+}
+
+void CharacterWidget::displayBalloon(QWidget *widget) {
+	if (m_balloonWidget) delete m_balloonWidget;
+	m_balloonWidget = widget;
+	if (m_balloonWidget) {
+		m_balloonWidget->setParent(this);
+	}
+	if (m_pixmap) updatePixmap();
+	if (m_balloonWidget) {
+		m_balloonWidget->setVisible(true);
+	}
+}
+
+void CharacterWidget::displayMessage(const QString &text) {
+	QLabel *label = nullptr;
+	if (text.size() > 0) {
+		label = new QLabel(text);
+		label->setAlignment(Qt::AlignCenter);
+	}
+	displayBalloon(label);
 }

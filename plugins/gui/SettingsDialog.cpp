@@ -1,5 +1,8 @@
 #include <QDebug>
 #include <QGridLayout>
+#include <QPushButton>
+#include <QJsonDocument>
+#include <QMessageBox>
 #include "Plugin.h"
 #include "CharacterWidget.h"
 #include "SettingsDialog.h"
@@ -45,4 +48,22 @@ void SettingsDialog::initUI() {
 		}
 	});
 	m_tabWidget->addTab(tab, "Alternatives");
+	tab = new QWidget(m_tabWidget);
+	tabLayout = new QGridLayout(tab);
+	m_sendMessageTagEdit = new QLineEdit("dc:say", tab);
+	tabLayout->addWidget(m_sendMessageTagEdit, 0, 0);
+	QPushButton *sendMessageButton = new QPushButton("Send", tab);
+	tabLayout->addWidget(sendMessageButton, 0, 1);
+	m_sendMessageDataEdit = new QTextEdit("{ \"text\": \"Test\" }", tab);
+	tabLayout->addWidget(m_sendMessageDataEdit, 1, 0, 1, 2);
+	connect(sendMessageButton, &QPushButton::clicked, [this]() {
+		QJsonParseError parseError;
+		QJsonDocument doc = QJsonDocument::fromJson(m_sendMessageDataEdit->toPlainText().toUtf8(), &parseError);
+		if (parseError.error != QJsonParseError::NoError) {
+			QMessageBox::warning(this, "DeskChan", parseError.errorString(), QMessageBox::Ok, QMessageBox::Ok);
+			return;
+		}
+		m_plugin->sendMessage(m_sendMessageTagEdit->text(), doc.toVariant());
+	});
+	m_tabWidget->addTab(tab, "Debug");
 }
