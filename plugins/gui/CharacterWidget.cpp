@@ -129,6 +129,11 @@ void CharacterWidget::updatePixmap() {
 
 void CharacterWidget::displayBalloon(QWidget *widget) {
 	if (m_balloonWidget) delete m_balloonWidget;
+	if (!m_balloonWidget && widget) {
+		move(x() - 400, y());
+	} else if (m_balloonWidget && !widget) {
+		move(x() + 400, y());
+	}
 	m_balloonWidget = widget;
 	if (m_balloonWidget) {
 		m_balloonWidget->setParent(this);
