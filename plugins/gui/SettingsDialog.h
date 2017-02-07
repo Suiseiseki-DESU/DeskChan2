@@ -3,6 +3,7 @@
 #include <QDialog>
 #include <QTabWidget>
 #include <QListWidget>
+#include <QTreeWidget>
 #include "Plugin.h"
 
 class CharacterWidget;
@@ -17,6 +18,7 @@ private:
 	PluginClass *m_plugin;
 	QTabWidget *m_tabWidget;
 	QListWidget *m_pluginsListWidget;
+	QTreeWidget *m_alternativesTreeWidget;
 
 	void initUI();
 

@@ -24,6 +24,7 @@ CharacterWidget::CharacterWidget(PluginClass *plugin): QWidget(nullptr), m_plugi
 }
 
 CharacterWidget::~CharacterWidget() {
+	if (m_pixmap) delete m_pixmap;
 	m_plugin->m_characterWidget = nullptr;
 }
 
