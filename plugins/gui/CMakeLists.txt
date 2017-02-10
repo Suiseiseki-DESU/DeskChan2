@@ -4,7 +4,7 @@ if(Qt5Widgets_FOUND)
 
 	set(SRC_LIST Plugin.cpp Plugin.h CharacterWidget.cpp CharacterWidget.h SettingsDialog.cpp SettingsDialog.h)
 	add_library(gui SHARED ${SRC_LIST})
-	target_link_libraries(gui Qt5::Widgets DeskChan_System)
+	target_link_libraries(gui Qt5::Widgets ${PROJECT_NAME}_System)
 
 	add_custom_command(
 			TARGET gui POST_BUILD
