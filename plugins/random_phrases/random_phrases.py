@@ -22,7 +22,7 @@ def say_text(text):
 initialize_plugin_interface('random_phrases')
 
 
-with open('phrases.json') as data_file:
+with open('phrases.json', encoding='utf-8') as data_file:
     data = json.load(data_file)
 phrases = [value[0] for value in data['values']]
 del data, data_file
