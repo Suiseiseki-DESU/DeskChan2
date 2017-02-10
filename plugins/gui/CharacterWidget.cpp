@@ -150,6 +150,7 @@ void CharacterWidget::displayMessage(const QString &text) {
 		label = new QLabel(text);
 		label->setAlignment(Qt::AlignCenter);
 		label->setWordWrap(true);
+		label->setStyleSheet("QLabel { color: black; }");
 	}
 	displayBalloon(label);
 }
