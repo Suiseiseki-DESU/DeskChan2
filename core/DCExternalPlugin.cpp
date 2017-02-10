@@ -8,7 +8,8 @@ DCExternalPlugin::DCExternalPlugin(const QString &command, const QString &workDi
 	m_process = new QProcess(this);
 	connect(m_process, &QProcess::readyReadStandardOutput, this, &DCExternalPlugin::readyReadStandardOutput);
 	connect(m_process, &QProcess::readyReadStandardError, this, &DCExternalPlugin::readyReadStandardError);
-	connect(m_process, &QProcess::errorOccurred, this, &DCExternalPlugin::errorOccurred);
+	connect(m_process, SIGNAL(QProcess::errorOccurred(QProcess::ProcessError)),
+			this, SLOT(DCExternalPlugin::errorOccurred(QProcess::ProcessError)));
 	connect(m_process, SIGNAL(finished(int, QProcess::ExitStatus)),
 			this, SLOT(finished(int, QProcess::ExitStatus)));
 	m_process->setWorkingDirectory(workDir);
