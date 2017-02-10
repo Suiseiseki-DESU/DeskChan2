@@ -149,6 +149,7 @@ void CharacterWidget::displayMessage(const QString &text) {
 	if (text.size() > 0) {
 		label = new QLabel(text);
 		label->setAlignment(Qt::AlignCenter);
+		label->setWordWrap(true);
 	}
 	displayBalloon(label);
 }

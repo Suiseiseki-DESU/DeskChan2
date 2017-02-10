@@ -1,1 +1,1 @@
-./random_phrases.py
+python ./random_phrases.py
