@@ -9,7 +9,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 target_link_libraries(${PROJECT_NAME} Qt5::Core)
 
 set(SRC_LIST libmain.cpp DCPluginManager.cpp DCPluginManager.h DCPlugin.cpp DCPlugin.h DCCorePlugin.h DCCorePlugin.cpp
-		DCCommon.h)
+		DCCommon.h DCExternalPlugin.cpp DCExternalPlugin.h)
 add_library(${PROJECT_NAME}_System SHARED ${SRC_LIST})
 #set_target_properties(${PROJECT_NAME}_System PROPERTIES
 #		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}

@@ -65,5 +65,15 @@ void SettingsDialog::initUI() {
 		}
 		m_plugin->sendMessage(m_sendMessageTagEdit->text(), doc.toVariant());
 	});
+	connect(m_plugin, &PluginClass::pluginLoaded, [this](const QString &pluginId) {
+		m_pluginsListWidget->addItem(pluginId);
+	});
+	connect(m_plugin, &PluginClass::pluginUnloaded, [this](const QString &pluginId) {
+		for (auto i = m_pluginsListWidget->count() - 1; i >= 0; --i) {
+			if (m_pluginsListWidget->item(i)->text() == pluginId) {
+				delete m_pluginsListWidget->item(i);
+			}
+		}
+	});
 	m_tabWidget->addTab(tab, "Debug");
 }

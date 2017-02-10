@@ -5,12 +5,12 @@
 #include <QStandardPaths>
 #include <QVariant>
 #include "DCPluginManager.h"
+#include "DCExternalPlugin.h"
 #include "DCCorePlugin.h"
 
 DCCorePlugin::DCCorePlugin(DCPluginManager &pluginManager): DCPlugin(pluginManager) {
 	initialize("core");
 	initCallbacks();
-	loadPlugin("python_support");
 	if (QCoreApplication::instance()->property("guiSupportAvailable").toBool()) {
 		loadPlugin("gui");
 	}
@@ -61,6 +61,18 @@ bool DCCorePlugin::loadPlugin(const QString &name) {
 		}
 		qWarning() << library->errorString();
 		delete library;
+	}
+	pluginLibraryName = pluginDirName + QDir::separator() + name + ".cmd";
+	if (QFileInfo(pluginLibraryName).isReadable()) {
+		QFile commandFile(pluginLibraryName);
+		if (commandFile.open(QIODevice::ReadOnly)) {
+			QString command = QString::fromUtf8(commandFile.readLine()).trimmed();
+			commandFile.close();
+			if (command.size() > 0) {
+				new DCExternalPlugin(command, pluginDirName, m_pluginManager);
+				return true;
+			}
+		}
 	}
 	for (auto &loaderInfo : m_pluginLoaders) {
 		pluginLibraryName = pluginDirName + QDir::separator() + loaderInfo.pattern.arg(name);
