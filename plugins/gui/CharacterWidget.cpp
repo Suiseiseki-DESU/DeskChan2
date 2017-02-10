@@ -47,13 +47,11 @@ void CharacterWidget::mousePressEvent(QMouseEvent *event) {
 		m_dragging = true;
 	} else if (event->button() == Qt::RightButton) {
 		QMenu menu;
-		QAction settingsAction;
-		settingsAction.setText("Settings...");
+		QAction settingsAction("Settings...", &menu);
 		connect(&settingsAction, &QAction::triggered, [this]() {
 			m_plugin->m_settingsDialog->show();
 		});
-		QAction quitAction;
-		quitAction.setText("Quit");
+		QAction quitAction("Quit", &menu);
 		connect(&quitAction, &QAction::triggered, [this]() {
 			m_plugin->sendMessage("core:quit", QVariant());
 		});
