@@ -6,12 +6,29 @@ def send_json(data):
     sys.stdout.flush()
 
 
-def init(id):
+def init(id, loop):
     send_json({'deskchan-plugin-id': id})
-    message_receiver()
+    asyncio.ensure_future(message_receiver(loop))
 
 
-def send_message(tag, data, callback=None):
+def subscribe(tag, callback=None):
+    global tag_handlers
+    if callback is not None:
+        l = tag_handlers.get(tag)
+        if l is None:
+            l = list()
+            tag_handlers[tag] = l
+        l.append(callback)
+    send_json({'subscribe': tag})
+
+
+def unsubscribe(tag):
+    global tag_handlers
+    send_json({'unsubscribe': tag})
+    del tag_handlers[tag]
+
+
+def send_message(tag, data=None, callback=None):
     global response_handlers
     if callback is not None:
         if data is None:
@@ -23,6 +40,14 @@ def send_message(tag, data, callback=None):
             data['seq'] = seq
         response_handlers[seq] = callback
     send_json({'tag': tag, 'data': data})
+
+
+def send_message_and_wait_response(tag, data=None):
+    f = asyncio.Future()
+    def done(sender, tag, data):
+        f.set_result(data)
+    send_message(tag, data, done)
+    return f
 
 
 @asyncio.coroutine
@@ -47,6 +72,7 @@ def message_receiver(loop=None):
             handler = response_handlers.get(seq)
             if handler is not None:
                 handler(sender, tag, data)
+                del response_handlers[seq]
 
 
 def make_seq_value():

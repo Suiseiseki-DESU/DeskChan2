@@ -31,12 +31,13 @@ void DCExternalPlugin::prepareToUnload() {
 
 void DCExternalPlugin::handleMessage(const QString &sender, const QString &tag, const QVariant &data) {
 	if (m_process) {
-		QJsonObject root;
+		QVariantMap root;
 		root["sender"] = sender;
 		root["tag"] = tag;
-		root["data"] = data.toJsonValue();
-		QJsonDocument doc(root);
-		m_process->write(doc.toJson(QJsonDocument::Compact) + "\n");
+		root["data"] = data;
+		QJsonDocument doc = QJsonDocument::fromVariant(root);
+		QByteArray msg = doc.toJson(QJsonDocument::Compact) + "\n";
+		m_process->write(msg);
 	}
 }
 
