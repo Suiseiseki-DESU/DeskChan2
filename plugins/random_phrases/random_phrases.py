@@ -13,14 +13,24 @@ def say_text(text):
 @asyncio.coroutine
 def say_random_phrase_loop(loop):
     data_dir = (yield from PluginInterface.send_message_and_wait_response('core:query-plugin-data-dir', None))['path']
-    #with aiohttp.ClientSession(loop=loop) as session:
-    #    with async_timeout.timeout(10):
-    #        with session.get(DATA_URL) as response:
-    #            pass
-    with open('phrases.json', encoding='utf-8') as data_file:
-        data = json.load(data_file)
-        phrases = [value[0] for value in data['values']]
-    del data, data_file
+    data_file_name = os.path.join(data_dir, 'phrases.json')
+    phrases = None
+    try:
+        response = yield from aiohttp.request('GET', DATA_URL)
+        if response.status == 200:
+            content = yield from response.read()
+            say_text(data_file_name)
+            data = json.loads(content)
+            phrases = [value[0] for value in data['values']]
+            with open(data_file_name, 'w', encoding='utf-8') as data_file:
+                data_file.write(json.dumps(data, ensure_ascii=False, indent=4, separators=(', ', ': ')))
+    except Exception as e:
+        say_text(str(e))
+        yield from asyncio.sleep(10)
+    if phrases is None:
+        with open(data_file_name, encoding='utf-8') as data_file:
+            data = json.load(data_file)
+            phrases = [value[0] for value in data['values']]
     random.seed()
     while True:
         i = random.randint(0, len(phrases) - 1)
