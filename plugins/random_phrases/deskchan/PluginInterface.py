@@ -1,4 +1,4 @@
-import sys, json, asyncio
+import os, sys, json, asyncio
 
 
 def send_json(data):
@@ -52,14 +52,18 @@ def send_message_and_wait_response(tag, data=None):
 
 @asyncio.coroutine
 def message_receiver(loop=None):
-    global tag_handlers, response_handlers
+    global tag_handlers, response_handlers, IS_WINDOWS
     if loop is None:
         loop = asyncio.get_event_loop()
-    reader = asyncio.StreamReader()
-    reader_protocol = asyncio.StreamReaderProtocol(reader)
-    yield from loop.connect_read_pipe(lambda: reader_protocol, sys.stdin)
+    if not IS_WINDOWS:
+        reader = asyncio.StreamReader()
+        reader_protocol = asyncio.StreamReaderProtocol(reader)
+        yield from loop.connect_read_pipe(lambda: reader_protocol, sys.stdin)
     while True:
-        msg_str = yield from reader.readline()
+        if not IS_WINDOWS:
+            msg_str = yield from reader.readline()
+        else:
+            msg_str = yield from loop.run_in_executor(None, sys.stdin.readline)
         msg = json.loads(msg_str)
         sender = msg['sender']
         tag = msg['tag']
@@ -81,6 +85,7 @@ def make_seq_value():
     return seq_counter
 
 
+IS_WINDOWS = os.name == 'nt'
 tag_handlers = dict()
 response_handlers = dict()
 seq_counter = 0
