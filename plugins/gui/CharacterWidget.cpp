@@ -1,3 +1,4 @@
+#include <QApplication>
 #include <QBitmap>
 #include <QDebug>
 #include <QCloseEvent>
@@ -7,6 +8,7 @@
 #include <QMenu>
 #include <QLabel>
 #include <QDir>
+#include <QDesktopWidget>
 #include "Plugin.h"
 #include "SettingsDialog.h"
 #include "CharacterWidget.h"
@@ -80,6 +82,7 @@ void CharacterWidget::initialize() {
 	QString pixmapFileName = m_assetsDir + QDir::separator() + "mashiro.png";
 	m_characterPixmap.load(pixmapFileName);
 	updatePixmap();
+	moveToDefaultPosition();
 	show();
 	initCallbacks();
 }
@@ -153,4 +156,9 @@ void CharacterWidget::displayMessage(const QString &text) {
 		label->setStyleSheet("QLabel { color: black; }");
 	}
 	displayBalloon(label);
+}
+
+void CharacterWidget::moveToDefaultPosition() {
+	QRect screenRect(QApplication::desktop()->availableGeometry(this));
+	move(screenRect.right() - width(), screenRect.bottom() - height());
 }

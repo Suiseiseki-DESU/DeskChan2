@@ -33,5 +33,6 @@ private:
 	void initialize();
 	void initCallbacks();
 	void updatePixmap();
+	void moveToDefaultPosition();
 
 };
