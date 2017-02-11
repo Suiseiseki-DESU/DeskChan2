@@ -13,12 +13,11 @@ if(WIN32)
 			INSTALL_COMMAND ""
 			SOURCE_DIR win32/bin
 	)
-	add_custom_target(
-			pip_install ALL
+	add_custom_command(
+			TARGET PythonBinary_Win32 POST_BUILD
 			COMMAND pip install -t "${CMAKE_CURRENT_BINARY_DIR}/site-packages" aiohttp
 			COMMAND python "${CMAKE_CURRENT_LIST_DIR}/package-installer.py"
 			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-			DEPENDS PythonBinary_Win32
 	)
 	install(
 			DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/win32/bin
