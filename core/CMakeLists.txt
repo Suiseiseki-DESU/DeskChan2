@@ -36,18 +36,4 @@ if(Qt5Widgets_FOUND)
 			${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}${PROJECT_NAME}_GuiSupport${CMAKE_SHARED_LIBRARY_SUFFIX}
 			${CMAKE_CURRENT_BINARY_DIR}/..
 	)
-	if(WIN32)
-		get_target_property(QtGui_location Qt5::Gui LOCATION)
-		add_custom_target(
-				QtGui_DLL ALL
-				COMMAND ${CMAKE_COMMAND} -E copy ${QtGui_location} ${CMAKE_BINARY_DIR}
-		)
-		install(FILES ${QtGui_location} DESTINATION ${CMAKE_INSTALL_PREFIX})
-		get_target_property(QtWidgets_location Qt5::Widgets LOCATION)
-		add_custom_target(
-				QtWidgets_DLL ALL
-				COMMAND ${CMAKE_COMMAND} -E copy ${QtWidgets_location} ${CMAKE_BINARY_DIR}
-		)
-		install(FILES ${QtWidgets_location} DESTINATION ${CMAKE_INSTALL_PREFIX})
-	endif()
 endif()

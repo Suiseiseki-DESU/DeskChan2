@@ -3,6 +3,13 @@
 #include <QPushButton>
 #include <QJsonDocument>
 #include <QMessageBox>
+#include <QApplication>
+
+#ifdef QT_QUICKWIDGETS_LIB
+#include <QQuickWidget>
+#include <QQmlEngine>
+#endif
+
 #include "Plugin.h"
 #include "CharacterWidget.h"
 #include "SettingsDialog.h"
@@ -10,6 +17,46 @@
 SettingsDialog::SettingsDialog(CharacterWidget *parent):
 		QDialog(parent), m_characterWidget(parent), m_plugin(parent->plugin()) {
 	initUI();
+#ifdef QT_QUICKWIDGETS_LIB
+	m_plugin->subscribe("gui:register-config-ui", [this](const QString &sender, const QString &tag, const QVariant &data) {
+		QVariantMap m = data.toMap();
+		QString tabName = m["name"].toString();
+		if (tabName.isEmpty()) {
+			tabName = sender;
+		}
+		QString afterTabName = m["after"].toString();
+		QString sceneFileName = m["sceneFile"].toString();
+		QQuickWidget *widget = new QQuickWidget(m_tabWidget);
+		widget->engine()->addImportPath(QApplication::applicationDirPath());
+		widget->engine()->addPluginPath(QApplication::applicationDirPath());
+		widget->setSource(QUrl::fromLocalFile(sceneFileName));
+		m_extraTabs[sender].append(widget);
+		int index;
+		for (index = 0; index < (m_tabWidget->count() - 1); ++index) {
+			if (m_tabWidget->tabText(index) == afterTabName) {
+				index++;
+				break;
+			}
+		}
+		m_tabWidget->insertTab(index, widget, tabName);
+	});
+	connect(m_plugin, &PluginClass::pluginLoaded, [this](const QString &pluginId) {
+		auto it = m_extraTabs.find(pluginId);
+		if (it != m_extraTabs.end()) {
+			for (auto it2 = it->begin(); it2 != it->end(); ++it2) {
+				m_tabWidget->removeTab(m_tabWidget->indexOf(*it2));
+				delete *it2;
+			}
+			m_extraTabs.erase(it);
+		}
+	});
+#endif
+}
+
+SettingsDialog::~SettingsDialog() {
+#ifdef QT_QUICKWIDGETS_LIB
+	m_plugin->unsubscribe("gui:register-config-ui");
+#endif
 }
 
 void SettingsDialog::initUI() {

@@ -13,6 +13,11 @@ def say_text(text):
 @asyncio.coroutine
 def say_random_phrase_loop(loop):
     data_dir = (yield from PluginInterface.send_message_and_wait_response('core:query-plugin-data-dir', None))['path']
+    PluginInterface.send_message('gui:register-config-ui', {
+        'name': 'Character',
+        'after': 'Appearance',
+        'sceneFile': os.path.abspath('character_options.qml')
+    })
     data_file_name = os.path.join(data_dir, 'phrases.json')
     phrases = None
     try:

@@ -13,6 +13,7 @@ public:
 	const QSet<QString> &pluginsList() const { return m_pluginsList; }
 	using DCPlugin::sendMessage;
 	using DCPlugin::subscribe;
+	using DCPlugin::unsubscribe;
 
 signals:
 	void pluginLoaded(const QString &id);
