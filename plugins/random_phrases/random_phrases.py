@@ -1,25 +1,13 @@
 #!/usr/bin/env python
 import sys, os, json, time, random
-
-
-def print_json(data):
-    print(json.dumps(data))
-    sys.stdout.flush()
-
-
-def initialize_plugin_interface(id):
-    print_json({'deskchan-plugin-id': id})
-
-
-def send_message(tag, data):
-    print_json({'tag': tag, 'data': data})
+from deskchan import PluginInterface
 
 
 def say_text(text):
-    send_message('dc:say', {'text': text})
+    PluginInterface.send_message('dc:say', {'text': text})
 
 
-initialize_plugin_interface('random_phrases')
+PluginInterface.init('random_phrases')
 
 
 with open('phrases.json', encoding='utf-8') as data_file:
