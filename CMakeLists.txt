@@ -38,6 +38,11 @@ if(WIN32)
 			COMMAND ${CMAKE_COMMAND} -E copy ${QtCore_location} ${CMAKE_BINARY_DIR}
 	)
 	install(FILES ${QtCore_location} DESTINATION ${CMAKE_INSTALL_PREFIX})
+	get_filename_component(QtCore_directory ${QtCore_location} DIRECTORY)
+	install(
+			FILES "${QtCore_directory}/../plugins/platforms/qwindows.dll"
+			DESTINATION ${CMAKE_INSTALL_PREFIX}/platforms
+	)
 endif()
 
 add_subdirectory(core)
