@@ -14,6 +14,7 @@ if(WIN32)
 				gcclib_DLL ALL
 				COMMAND ${CMAKE_COMMAND} -E copy ${gcclib_location} ${CMAKE_BINARY_DIR}
 		)
+		install(FILES ${gcclib_location} DESTINATION ${CMAKE_INSTALL_PREFIX})
 	endif()
 	find_library(stdcpplib_location NAMES stdc++-6)
 	if (stdcpplib_location)
@@ -21,6 +22,7 @@ if(WIN32)
 				stdcpplib_DLL ALL
 				COMMAND ${CMAKE_COMMAND} -E copy ${stdcpplib_location} ${CMAKE_BINARY_DIR}
 		)
+		install(FILES ${stdcpplib_location} DESTINATION ${CMAKE_INSTALL_PREFIX})
 	endif()
 	find_library(pthread_location NAMES winpthread-1)
 	if (pthread_location)
@@ -28,12 +30,14 @@ if(WIN32)
 				pthread_DLL ALL
 				COMMAND ${CMAKE_COMMAND} -E copy ${pthread_location} ${CMAKE_BINARY_DIR}
 		)
+		install(FILES ${pthread_location} DESTINATION ${CMAKE_INSTALL_PREFIX})
 	endif()
 	get_target_property(QtCore_location Qt5::Core LOCATION)
 	add_custom_target(
 			QtCore_DLL ALL
 			COMMAND ${CMAKE_COMMAND} -E copy ${QtCore_location} ${CMAKE_BINARY_DIR}
 	)
+	install(FILES ${QtCore_location} DESTINATION ${CMAKE_INSTALL_PREFIX})
 endif()
 
 add_subdirectory(core)
