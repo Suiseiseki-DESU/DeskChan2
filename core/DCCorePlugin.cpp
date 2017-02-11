@@ -11,6 +11,7 @@
 DCCorePlugin::DCCorePlugin(DCPluginManager &pluginManager): DCPlugin(pluginManager) {
 	initialize("core");
 	initCallbacks();
+	loadPlugin("python_support");
 	if (QCoreApplication::instance()->property("guiSupportAvailable").toBool()) {
 		loadPlugin("gui");
 	}

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys, os, json, time, random, asyncio
+sys.path.append(".")
 from deskchan import PluginInterface
 
 

@@ -3,7 +3,7 @@
 #include <QProcess>
 #include "DCPlugin.h"
 
-class DCExternalPlugin: public DCPlugin {
+class DC_CORE_DECL DCExternalPlugin: public DCPlugin {
 	Q_OBJECT
 public:
 	explicit DCExternalPlugin(const QString& command, const QString& workDir, DCPluginManager &pluginManager);

@@ -42,7 +42,7 @@ void DCExternalPlugin::handleMessage(const QString &sender, const QString &tag, 
 }
 
 void DCExternalPlugin::readyReadStandardOutput() {
-	m_dataBuffer += m_process->readAll();
+	m_dataBuffer += m_process->readAllStandardOutput();
 	int lineBegin = 0, lineEnd;
 	while ((lineEnd = m_dataBuffer.indexOf('\n', lineBegin)) >= 0) {
 		QByteArray line = m_dataBuffer.mid(lineBegin, lineEnd - lineBegin);
@@ -82,7 +82,7 @@ void DCExternalPlugin::readyReadStandardOutput() {
 }
 
 void DCExternalPlugin::readyReadStandardError() {
-	m_logBuffer += m_process->readAll();
+	m_logBuffer += m_process->readAllStandardError();
 	int lineBegin = 0, lineEnd;
 	while ((lineEnd = m_logBuffer.indexOf('\n', lineBegin)) >= 0) {
 		QByteArray line = m_logBuffer.mid(lineBegin, lineEnd - lineBegin);
