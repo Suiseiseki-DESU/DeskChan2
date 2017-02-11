@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys, os, json, time, random, asyncio, aiohttp, async_timeout
+import sys, os, json, time, random, asyncio
 from deskchan import PluginInterface
 
 
@@ -16,6 +16,7 @@ def say_random_phrase_loop(loop):
     data_file_name = os.path.join(data_dir, 'phrases.json')
     phrases = None
     try:
+        import aiohttp
         response = yield from aiohttp.request('GET', DATA_URL)
         if response.status == 200:
             content = yield from response.read()
