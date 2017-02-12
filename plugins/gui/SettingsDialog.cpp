@@ -8,6 +8,8 @@
 #ifdef QT_QUICKWIDGETS_LIB
 #include <QQuickWidget>
 #include <QQmlEngine>
+#include <QQmlContext>
+#include "QMLPluginProxy.h"
 #endif
 
 #include "Plugin.h"
@@ -29,6 +31,7 @@ SettingsDialog::SettingsDialog(CharacterWidget *parent):
 		QQuickWidget *widget = new QQuickWidget(m_tabWidget);
 		widget->engine()->addImportPath(QApplication::applicationDirPath());
 		widget->engine()->addPluginPath(QApplication::applicationDirPath());
+		widget->rootContext()->setContextProperty("deskChan", new QMLPluginProxy(m_plugin, widget));
 		widget->setSource(QUrl::fromLocalFile(sceneFileName));
 		m_extraTabs[sender].append(widget);
 		int index;

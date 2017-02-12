@@ -3,7 +3,8 @@ find_package(Qt5Widgets)
 if(Qt5Widgets_FOUND)
 	find_package(Qt5QuickWidgets)
 
-	set(SRC_LIST Plugin.cpp Plugin.h CharacterWidget.cpp CharacterWidget.h SettingsDialog.cpp SettingsDialog.h)
+	set(SRC_LIST Plugin.cpp Plugin.h CharacterWidget.cpp CharacterWidget.h SettingsDialog.cpp SettingsDialog.h
+			QMLPluginProxy.cpp QMLPluginProxy.h)
 	add_library(gui SHARED ${SRC_LIST})
 	target_link_libraries(gui Qt5::Widgets ${PROJECT_NAME}_System)
 
