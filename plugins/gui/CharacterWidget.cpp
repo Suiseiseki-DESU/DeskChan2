@@ -160,5 +160,5 @@ void CharacterWidget::displayMessage(const QString &text) {
 
 void CharacterWidget::moveToDefaultPosition() {
 	QRect screenRect(QApplication::desktop()->availableGeometry(this));
-	move(screenRect.right() - width(), screenRect.bottom() - height());
+	move(screenRect.right() - width() + 1, screenRect.bottom() - height() + 1);
 }
