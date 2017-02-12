@@ -79,7 +79,7 @@ void CharacterWidget::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void CharacterWidget::initialize() {
-	QString pixmapFileName = m_assetsDir + QDir::separator() + "mashiro.png";
+	QString pixmapFileName = m_assetsDir + QDir::separator() + "sprite0001.png";
 	m_characterPixmap.load(pixmapFileName);
 	updatePixmap();
 	moveToDefaultPosition();
@@ -98,7 +98,7 @@ void CharacterWidget::initCallbacks() {
 
 void CharacterWidget::updatePixmap() {
 	if (m_pixmap) delete m_pixmap;
-	float characterPixmapScale = 400.0f / m_characterPixmap.height();
+	float characterPixmapScale = 1.0f; //400.0f / m_characterPixmap.height();
 	QSize pixmapSize((int)(m_characterPixmap.width() * characterPixmapScale),
 					 (int)(m_characterPixmap.height() * characterPixmapScale));
 	if (m_balloonWidget) {
